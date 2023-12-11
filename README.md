@@ -1,2 +1,4 @@
-# ecspert-analysis
-Tools and scripts for analyzing the results of ECSPERT runs
+# ECSPERT Analysis Tools
+
+This repository contains code developed for analyzing output of [ECSPERT](https://github.com/myoung-space-science/ecspert) runs.
+
