@@ -4,5 +4,5 @@
 pydir="$(dirname "$(readlink -f "$0")")"
 python ${pydir}/plot_distribution.py position -o position -v --np
 python ${pydir}/plot_planes.py fluid density -o density -v --min-max
-python ${pydir}/plot_planes.py fluid potential -o potential -v --min-max
+python ${pydir}/plot_planes.py fluid potential -o potential -v --min-max --colormap seismic
 
