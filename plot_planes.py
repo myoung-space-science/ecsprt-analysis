@@ -12,7 +12,7 @@ import tools
 # TODO: Add --xlim and --ylim. See plot_distribution.py
 
 
-def add_plot(ax, data, xstr: str, ystr: str, show_min_max: bool=False):
+def add_plot(ax, data, xstr: str, ystr: str, **kwargs):
     """Add a 2-D figure from `data` to `ax`.
     
     Notes
@@ -20,10 +20,10 @@ def add_plot(ax, data, xstr: str, ystr: str, show_min_max: bool=False):
     This function inverts the logical y axis in order to set the origin in the
     bottom left corner.
     """
-    ax.pcolormesh(numpy.transpose(data))
+    ax.pcolormesh(numpy.transpose(data), cmap=kwargs.get('colormap'))
     ax.set_xlabel(xstr)
     ax.set_ylabel(ystr)
-    if show_min_max:
+    if kwargs.get('show_min_max'):
         dmax = numpy.max(data)
         dmin = numpy.min(data)
         ax.set_title(
@@ -77,8 +77,8 @@ def main(
     origin: typing.Sequence[typing.SupportsInt]=None,
     outdir: str=None,
     optsfile: str=None,
-    show_min_max: bool=False,
     verbose: bool=False,
+    **plot_kws
 ) -> None:
     """Plot 2-D planes of the named 3-D array(s)."""
     srcdir = pathlib.Path(source or '.').expanduser().resolve()
@@ -99,7 +99,7 @@ def main(
         for name in names:
             if verbose:
                 print(f"Plotting {name}")
-            create(results[name], options=options, show_min_max=show_min_max)
+            create(results[name], options=options, **plot_kws)
             figname = f"{name.replace(' ', '_')}{tag}.png"
             if verbose:
                 print(f"Saving {figname}")
@@ -166,6 +166,10 @@ if __name__ == '__main__':
         dest='show_min_max',
         help="print information about min and max values",
         action='store_true',
+    )
+    parser.add_argument(
+        '--colormap',
+        help="name of the Matplotlib colormap to use",
     )
     parser.add_argument(
         '-v',
