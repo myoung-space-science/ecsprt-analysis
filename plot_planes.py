@@ -40,7 +40,11 @@ def add_plot(ax, data, xstr: str, ystr: str, **kwargs):
 
 def create(array: tools.HDFArray, options: tools.Options=None, **kwargs):
     """Plot the planes in the given dataset."""
-    planes = get_planes(array)
+    planes = {
+        (0, 0): {'data': array.xy, 'xstr': 'x', 'ystr': 'y'},
+        (1, 0): {'data': array.xz, 'xstr': 'x', 'ystr': 'z'},
+        (1, 1): {'data': array.yz, 'xstr': 'y', 'ystr': 'z'},
+    }
     axes = {k: v.copy() for k, v in planes.items() if v['data'] is not None}
     nrows = 1 + (len(axes) == 3)
     ncols = 2
@@ -64,22 +68,6 @@ def create(array: tools.HDFArray, options: tools.Options=None, **kwargs):
         ax = axs[i[0], i[1]]
         add_plot(ax, **this, **kwargs)
     fig.tight_layout()
-
-
-def get_planes(data: tools.HDFArray):
-    """Get data planes from a logically 3-D array."""
-    ndim = numpy.squeeze(data.array).ndim
-    if ndim == 2:
-        return {(0, 0): {'data': data.yz, 'xstr': 'x', 'ystr': 'y'}}
-    if ndim == 3:
-        return {
-            (0, 0): {'data': data.xy, 'xstr': 'x', 'ystr': 'y'},
-            (1, 0): {'data': data.xz, 'xstr': 'x', 'ystr': 'z'},
-            (1, 1): {'data': data.yz, 'xstr': 'y', 'ystr': 'z'},
-        }
-    raise ValueError(
-        f"Data must have equivalent dimension 2 or 3, not {ndim}"
-    ) from None
 
 
 def main(
