@@ -76,17 +76,15 @@ class HDFArray:
     def xy(self):
         """The array in the x-y plane, at `z0`."""
         if self._xy is None:
-            if self.nz:
+            if self.nx > 1 and self.ny > 1:
                 self._xy = self.array[:, :, self.z0].squeeze()
-            else:
-                self._xy = self.array.copy()
         return self._xy
 
     @property
     def xz(self):
         """The array in the x-z plane, at `y0`."""
         if self._xz is None:
-            if self.nz > 1:
+            if self.nx > 1 and self.nz > 1:
                 self._xz = self.array[:, self.y0, :].squeeze()
         return self._xz
 
@@ -94,7 +92,7 @@ class HDFArray:
     def yz(self):
         """The array in the y-z plane, at `x0`."""
         if self._yz is None:
-            if self.nz > 1:
+            if self.ny > 1 and self.nz > 1:
                 self._yz = self.array[self.x0, :, :].squeeze()
         return self._yz
 
@@ -157,7 +155,10 @@ class HDFArray:
                 numpy.transpose(self._dataset) if self._order == 'C'
                 else self._dataset
             )
-            self._array = numpy.array(data, ndmin=3)
+            if data.ndim == 2:
+                self._array = numpy.array(data).reshape(*data.shape, 1)
+            else:
+                self._array = numpy.array(data)
         return self._array
 
     def __repr__(self) -> str:
