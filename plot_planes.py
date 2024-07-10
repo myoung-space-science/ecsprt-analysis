@@ -4,6 +4,7 @@ import typing
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
+from matplotlib.axes import Axes
 import numpy
 
 import tools
@@ -12,7 +13,7 @@ import tools
 # TODO: Add --xlim and --ylim. See plot_distribution.py
 
 
-def add_plot(ax, data, xstr: str, ystr: str, **kwargs):
+def add_plot(ax: Axes, data: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     """Add a 2-D figure from `data` to `ax`.
     
     Notes
@@ -20,7 +21,11 @@ def add_plot(ax, data, xstr: str, ystr: str, **kwargs):
     This function inverts the logical y axis in order to set the origin in the
     bottom left corner.
     """
-    ax.pcolormesh(numpy.transpose(data), cmap=kwargs.get('colormap'))
+    td = numpy.transpose(data)
+    ax.pcolormesh(td, cmap=kwargs.get('colormap'))
+    if kwargs.get('means'):
+        for axis in (0, 1):
+            add_mean_line(ax, td, axis)
     ax.set_xlabel(xstr)
     ax.set_ylabel(ystr)
     if kwargs.get('show_min_max'):
@@ -36,6 +41,20 @@ def add_plot(ax, data, xstr: str, ystr: str, **kwargs):
     ax.set_aspect('equal')
     ax.xaxis.set_major_locator(tck.MaxNLocator(5))
     ax.yaxis.set_major_locator(tck.MaxNLocator(5))
+
+
+def add_mean_line(ax: Axes, data: numpy.ndarray, axis: int):
+    """Add a line plot of the mean data value along `axis`."""
+    meandata = numpy.mean(data, axis=axis)
+    detrended = meandata - numpy.mean(meandata)
+    shift = data.shape[axis] // 2
+    scale = 10
+    meanline = shift + scale*detrended
+    if axis == 1:
+        indices = numpy.arange(data.shape[0])
+        ax.plot(meanline, indices, 'w')
+    else:
+        ax.plot(meanline, 'w')
 
 
 def create(array: tools.HDFArray, options: tools.Options=None, **kwargs):
@@ -165,6 +184,11 @@ if __name__ == '__main__':
         '--min-max',
         dest='show_min_max',
         help="print information about min and max values",
+        action='store_true',
+    )
+    parser.add_argument(
+        '--means',
+        help="show line-plots of mean values",
         action='store_true',
     )
     parser.add_argument(
