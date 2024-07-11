@@ -25,7 +25,7 @@ def add_plot(ax: Axes, data: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     ax.pcolormesh(td, cmap=kwargs.get('colormap'))
     if kwargs.get('means'):
         for axis in (0, 1):
-            add_mean_line(ax, td, axis)
+            add_mean_line(ax, td, axis, kwargs['means_color'])
     ax.set_xlabel(xstr)
     ax.set_ylabel(ystr)
     if kwargs.get('show_min_max'):
@@ -43,7 +43,7 @@ def add_plot(ax: Axes, data: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     ax.yaxis.set_major_locator(tck.MaxNLocator(5))
 
 
-def add_mean_line(ax: Axes, data: numpy.ndarray, axis: int):
+def add_mean_line(ax: Axes, data: numpy.ndarray, axis: int, color: str):
     """Add a line plot of the mean data value along `axis`."""
     meandata = numpy.mean(data, axis=axis)
     detrended = meandata - numpy.mean(meandata)
@@ -52,9 +52,9 @@ def add_mean_line(ax: Axes, data: numpy.ndarray, axis: int):
     meanline = shift + scale*detrended
     if axis == 1:
         indices = numpy.arange(data.shape[0])
-        ax.plot(meanline, indices, 'w')
+        ax.plot(meanline, indices, color=color)
     else:
-        ax.plot(meanline, 'w')
+        ax.plot(meanline, color=color)
 
 
 def create(array: tools.HDFArray, options: tools.Options=None, **kwargs):
@@ -190,6 +190,11 @@ if __name__ == '__main__':
         '--means',
         help="show line-plots of mean values",
         action='store_true',
+    )
+    parser.add_argument(
+        '--means-color',
+        help="color of mean-value line plots",
+        default='white',
     )
     parser.add_argument(
         '--colormap',
