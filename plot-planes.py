@@ -106,7 +106,7 @@ def main(
         if outdir else srcdir
     )
     figdir.mkdir(parents=True, exist_ok=True)
-    filepaths = list(srcdir.glob(f"{filebase}*.hdf"))
+    filepaths = get_filepaths(srcdir, filebase)
     for filepath in filepaths:
         tag = filepath.stem.lstrip(filebase)
         results = tools.Results(filepath, origin=origin)
@@ -127,6 +127,28 @@ def main(
         print()
     if verbose:
         print(f"Figure directory: {figdir}")
+
+
+EXTENSIONS = (
+    '.hdf',
+    '.h5',
+)
+
+
+class MissingInputError(Exception):
+    """Could not find valid input files."""
+
+
+def get_filepaths(srcdir: pathlib.Path, filebase: str):
+    """Get paths to input files."""
+    for ext in EXTENSIONS:
+        found = list(srcdir.glob(f"{filebase}*{ext}"))
+        if found:
+            return found
+    raise MissingInputError(
+        f"Unable to locate valid input files in {srcdir}"
+        f" with base name {filebase!r}"
+    ) from None
 
 
 if __name__ == '__main__':
