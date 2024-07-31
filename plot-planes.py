@@ -13,7 +13,7 @@ import tools
 # TODO: Add --xlim and --ylim. See plot_distribution.py
 
 
-def add_plot(ax: Axes, data: numpy.ndarray, xstr: str, ystr: str, **kwargs):
+def add_plot(ax: Axes, array: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     """Add a 2-D figure from `data` to `ax`.
     
     Notes
@@ -21,11 +21,11 @@ def add_plot(ax: Axes, data: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     This function inverts the logical y axis in order to set the origin in the
     bottom left corner.
     """
-    td = numpy.transpose(data)
-    ax.pcolormesh(td, cmap=kwargs.get('colormap'))
+    data = array.transpose() if kwargs['transpose'] else array
+    ax.pcolormesh(data, cmap=kwargs.get('colormap'))
     if kwargs.get('means'):
         for axis in (0, 1):
-            add_mean_line(ax, td, axis, kwargs['means_color'])
+            add_mean_line(ax, data, axis, kwargs['means_color'])
     ax.set_xlabel(xstr)
     ax.set_ylabel(ystr)
     if kwargs.get('show_min_max'):
@@ -60,11 +60,11 @@ def add_mean_line(ax: Axes, data: numpy.ndarray, axis: int, color: str):
 def create(array: tools.HDFArray, options: tools.Options=None, **kwargs):
     """Plot the planes in the given dataset."""
     planes = {
-        (0, 0): {'data': array.xy, 'xstr': 'x', 'ystr': 'y'},
-        (1, 0): {'data': array.xz, 'xstr': 'x', 'ystr': 'z'},
-        (1, 1): {'data': array.yz, 'xstr': 'y', 'ystr': 'z'},
+        (0, 0): {'array': array.xy, 'xstr': 'x', 'ystr': 'y'},
+        (1, 0): {'array': array.xz, 'xstr': 'x', 'ystr': 'z'},
+        (1, 1): {'array': array.yz, 'xstr': 'y', 'ystr': 'z'},
     }
-    axes = {k: v.copy() for k, v in planes.items() if v['data'] is not None}
+    axes = {k: v.copy() for k, v in planes.items() if v['array'] is not None}
     nrows = 1 + (len(axes) == 3)
     ncols = 2
     fig, axs = plt.subplots(
@@ -201,6 +201,11 @@ if __name__ == '__main__':
         dest='optsfile',
         help="path to a file from which to create a legend of options values",
         metavar="PATH",
+    )
+    parser.add_argument(
+        '--transpose',
+        help="transpose each plane before plotting",
+        action='store_true',
     )
     parser.add_argument(
         '--min-max',
