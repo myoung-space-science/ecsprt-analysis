@@ -22,7 +22,12 @@ def add_plot(ax: Axes, array: numpy.ndarray, xstr: str, ystr: str, **kwargs):
     bottom left corner.
     """
     data = array.transpose() if kwargs['transpose'] else array
-    ax.pcolormesh(data, cmap=kwargs.get('colormap'))
+    ax.pcolormesh(
+        data,
+        cmap=kwargs.get('colormap'),
+        vmin=kwargs['cmin'],
+        vmax=kwargs['cmax'],
+    )
     if kwargs.get('means'):
         for axis in (0, 1):
             add_mean_line(ax, data, axis, kwargs['means_color'])
@@ -226,6 +231,16 @@ if __name__ == '__main__':
     parser.add_argument(
         '--colormap',
         help="name of the Matplotlib colormap to use",
+    )
+    parser.add_argument(
+        '--cmin',
+        help="color scale minimum value",
+        type=float,
+    )
+    parser.add_argument(
+        '--cmax',
+        help="color scale maximum value",
+        type=float,
     )
     parser.add_argument(
         '-v',
