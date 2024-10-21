@@ -3,6 +3,7 @@ Support for working with PETSc objects.
 """
 
 import collections.abc
+import os
 import pathlib
 import sys
 import typing
@@ -10,7 +11,8 @@ import typing
 import numpy
 import matplotlib.colors as clr
 
-PETSC_PATH = pathlib.Path('~/petsc/lib/petsc/bin').expanduser()
+PETSC_DIR = pathlib.Path(os.environ['PETSC_DIR'])
+PETSC_PATH = pathlib.Path(f'{PETSC_DIR}/lib/petsc/bin').expanduser()
 sys.path.append(str(PETSC_PATH))
 
 import PetscBinaryIO
